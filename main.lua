@@ -25,7 +25,7 @@ local curx, cury
 local amnt_due
 local winner_payout
 local winning_amount
-local balance = 0
+local balance = 100
 
 local playerValue = 0
 local dealerValue = 0
@@ -128,7 +128,6 @@ local function updateChars(cards,actualcards)
 			table.insert(cards.pid,"K")
 		end
 	end
-
 end
 
 local function displayCards(cards)
@@ -155,7 +154,7 @@ local function displayCards(cards)
 		term.setCursorPos(1,3)
 		mon.setBackgroundColor((colours.black))
 		center_printing("Dealer Hand:     "..cards.did[1].."    ?")
-		--center_printing("Dealer Hand:     "..cards.did[1].." "..cards.did[2])
+		--center_printing("Dealer Hand:     "..cards.did[1].." "    ..cards.did[2])
 		term.setCursorPos(1,5)
 		center_printing("Your Hand: "..p)
 	end
@@ -170,111 +169,185 @@ local function hitStandButtons()
 	mon.setBackgroundColor((colours.black))
 end
 
+local List = {}
+
+function List.new ()
+    return {first = 0, last = -1}
+end
+List = List.new()
+function List.pushleft (list, value)
+	local first = list.first - 1
+	list.first = first
+	list[first] = value
+end
+
+function List.pushright (list, value)
+	local last = list.last + 1
+	list.last = last
+	list[last] = value
+end
+  
+function List.popleft (list)
+	local first = list.first
+	if first > list.last then error("list is empty") end
+	local value = list[first]
+	list[first] = nil        -- to allow garbage collection
+	list.first = first + 1
+	return value
+end
+  
+function List.popright (list)
+	local last = list.last
+	if list.first > last then error("list is empty") end
+	local value = list[last]
+	list[last] = nil         -- to allow garbage collection
+	list.last = last - 1
+	return value
+end
+
 local function calculateScore(cards)
-	local temp1 = 0
-	local temp2 = 0
+	List.pushright(List,0)
+	local listLength = 1
 	for key,value in pairs(cards.pid) do
 		if(value == "A") then
-			temp1 = temp1 + 1
-			temp2 = temp2 + 11
+			for i=1, listLength do
+				local temp = List.popleft(List)
+				List.pushright(List,1 + temp)
+				List.pushright(List,11 + temp)
+				listLength = listLength + 1
+			end
 		elseif(value == "2") then
-			temp1 = temp1 + 2
-			temp2 = temp2 + 2
+			for i=1, listLength do
+				local temp = List.popleft(List)
+				List.pushright(List, 2 + temp)
+			end
 		elseif(value == "3") then
-			temp1 = temp1 + 3
-			temp2 = temp2 + 3
+			for i=1, listLength do
+				local temp = List.popleft(List)
+				List.pushright(List, 3 + temp)
+			end
 		elseif(value == "4") then
-			temp1 = temp1 + 4
-			temp2 = temp2 + 4
+			for i=1, listLength do
+				local temp = List.popleft(List)
+				List.pushright(List, 4 + temp)
+			end
 		elseif(value == "5") then
-			temp1 = temp1 + 5
-			temp2 = temp2 + 5
+			for i=1, listLength do
+				local temp = List.popleft(List)
+				List.pushright(List, 5 + temp)
+			end
 		elseif(value == "6") then
-			temp1 = temp1 + 6
-			temp2 = temp2 + 6
+			for i=1, listLength do
+				local temp = List.popleft(List)
+				List.pushright(List, 6 + temp)
+			end
 		elseif(value == "7") then
-			temp1 = temp1 + 7
-			temp2 = temp2 + 7
+			for i=1, listLength do
+				local temp = List.popleft(List)
+				List.pushright(List, 7 + temp)
+			end
 		elseif(value == "8") then
-			temp1 = temp1 + 8
-			temp2 = temp2 + 8
+			for i=1, listLength do
+				local temp = List.popleft(List)
+				List.pushright(List, 8 + temp)
+			end
 		elseif(value == "9") then
-			temp1 = temp1 + 9
-			temp2 = temp2 + 9
+			for i=1, listLength do
+				local temp = List.popleft(List)
+				List.pushright(List, 9 + temp)
+			end
 		else
-			temp1 = temp1 + 10
-			temp2 = temp2 + 10
+			for i=1, listLength do
+				local temp = List.popleft(List)
+				List.pushright(List, 10 + temp)
+			end
 		end
-	end
-	if temp2 > 21 and temp1 <= 21 then
-		playerValue = temp1
-	elseif temp1 > 21 and temp2 > 21 then
-		playerValue = temp1
-	elseif temp1 > 21 and temp2 < 21 then
-		playerValue = temp2
-	elseif temp1 == 21 then
-		playerValue = temp1
-	elseif temp2 == 21 then
-		playerValue = temp2
-	elseif temp1 > temp2 and temp1 <= 21 then
-		playerValue = temp1
-	elseif temp2 > temp1 and temp2 <= 21 then
-		playerValue = temp2
-	else
-		playerValue = temp1
 	end
 
-	temp1 = 0
-	temp2 = 0
-	for key,value in pairs(cards.did) do
-		if(value == "A") then
-			temp1 = temp1 + 1
-			temp2 = temp2 + 11
-		elseif(value == "2") then
-			temp1 = temp1 + 2
-			temp2 = temp2 + 2
-		elseif(value == "3") then
-			temp1 = temp1 + 3
-			temp2 = temp2 + 3
-		elseif(value == "4") then
-			temp1 = temp1 + 4
-			temp2 = temp2 + 4
-		elseif(value == "5") then
-			temp1 = temp1 + 5
-			temp2 = temp2 + 5
-		elseif(value == "6") then
-			temp1 = temp1 + 6
-			temp2 = temp2 + 6
-		elseif(value == "7") then
-			temp1 = temp1 + 7
-			temp2 = temp2 + 7
-		elseif(value == "8") then
-			temp1 = temp1 + 8
-			temp2 = temp2 + 8
-		elseif(value == "9") then
-			temp1 = temp1 + 9
-			temp2 = temp2 + 9
-		else
-			temp1 = temp1 + 10
-			temp2 = temp2 + 10
+	local bool = true
+	playerValue = 0
+	for i=1, listLength do
+		local temp = List.popleft(List)
+		if (playerValue < temp and temp <= 21) then
+			playerValue = temp
+			bool = false
 		end
 	end
-	if temp2 > 21 and temp1 <= 21 then
-		dealerValue = temp1
-	elseif temp1 > 21 and temp2 > 21 then
-		dealerValue = temp1
-	elseif temp1 > 21 and temp2 <= 21 then
-		dealerValue = temp2
-	elseif temp1 == 21 then
-		dealerValue = temp1
-	elseif temp2 == 21 then
-		dealerValue = temp2
-	elseif temp1 > temp2 and temp1 <= 21 then
-		dealerValue = temp1
-	elseif temp2 > temp1 and temp2 <= 21 then
-		dealerValue = temp2
-	else
-		dealerValue = temp1
+
+	if (bool) then
+		playerValue = 22
+	end
+
+	listLength = 1
+	List.pushright(List, 0)
+
+	for key,value in pairs(cards.did) do
+		if(value == "A") then
+			for i=1, listLength do
+				local temp = List.popleft(List)
+				List.pushright(List,1 + temp)
+				List.pushright(List,11 + temp)
+				listLength = listLength + 1
+			end
+		elseif(value == "2") then
+			for i=1, listLength do
+				local temp = List.popleft(List)
+				List.pushright(List, 2 + temp)
+			end
+		elseif(value == "3") then
+			for i=1, listLength do
+				local temp = List.popleft(List)
+				List.pushright(List, 3 + temp)
+			end
+		elseif(value == "4") then
+			for i=1, listLength do
+				local temp = List.popleft(List)
+				List.pushright(List, 4 + temp)
+			end
+		elseif(value == "5") then
+			for i=1, listLength do
+				local temp = List.popleft(List)
+				List.pushright(List, 5 + temp)
+			end
+		elseif(value == "6") then
+			for i=1, listLength do
+				local temp = List.popleft(List)
+				List.pushright(List, 6 + temp)
+			end
+		elseif(value == "7") then
+			for i=1, listLength do
+				local temp = List.popleft(List)
+				List.pushright(List, 7 + temp)
+			end
+		elseif(value == "8") then
+			for i=1, listLength do
+				local temp = List.popleft(List)
+				List.pushright(List, 8 + temp)
+			end
+		elseif(value == "9") then
+			for i=1, listLength do
+				local temp = List.popleft(List)
+				List.pushright(List, 9 + temp)
+			end
+		else
+			for i=1, listLength do
+				local temp = List.popleft(List)
+				List.pushright(List, 10 + temp)
+			end
+		end
+	end
+	bool = true
+	dealerValue = 0
+	for i=1, listLength do
+		local temp = List.popleft(List)
+		if (dealerValue < temp and temp <= 21) then
+			dealerValue = temp
+			bool = false
+		end
+	end
+
+	if (bool) then
+		dealerValue = 22
 	end
 end
 
